@@ -1,5 +1,6 @@
 import { useState, useCallback, useEffect } from "react";
 import { Product } from "../../types";
+import { useNotification } from "./useNotification";
 
 interface ProductWithUI extends Product {
   description?: string;
@@ -53,19 +54,26 @@ export const useProducts = () => {
     }
     return initialProducts;
   });
+  const { notifications, addNotification, removeNotification } =
+    useNotification();
 
   useEffect(() => {
     localStorage.setItem("products", JSON.stringify(products));
   }, [products]);
 
-  const addProduct = useCallback((newProduct: Omit<ProductWithUI, "id">) => {
-    const product: ProductWithUI = {
-      ...newProduct,
-      id: `p${Date.now()}`,
-    };
-    setProducts((prev) => [...prev, product]);
-    return product;
-  }, []);
+  const addProduct = useCallback(
+    (newProduct: Omit<ProductWithUI, "id">) => {
+      const product: ProductWithUI = {
+        ...newProduct,
+        id: `p${Date.now()}`,
+      };
+      setProducts((prev) => [...prev, product]);
+      addNotification("상품이 추가되었습니다.", "success");
+
+      return product;
+    },
+    [addNotification]
+  );
 
   const updateProduct = useCallback(
     (productId: string, updates: Partial<ProductWithUI>) => {
@@ -74,12 +82,14 @@ export const useProducts = () => {
           product.id === productId ? { ...product, ...updates } : product
         )
       );
+      addNotification("상품이 수정되었습니다.", "success");
     },
-    []
+    [addNotification]
   );
 
   const deleteProduct = useCallback((productId: string) => {
     setProducts((prev) => prev.filter((p) => p.id !== productId));
+    addNotification("상품이 삭제되었습니다.", "success");
   }, []);
 
   return {
