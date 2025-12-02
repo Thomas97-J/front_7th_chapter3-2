@@ -27,7 +27,9 @@ const App = () => {
     },
     []
   );
-  const { products, addProduct, updateProduct, deleteProduct } = useProducts();
+  const { products, addProduct, updateProduct, deleteProduct } = useProducts({
+    addNotification,
+  });
   const {
     cart,
     totalItemCount,

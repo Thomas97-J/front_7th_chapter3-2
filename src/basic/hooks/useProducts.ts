@@ -41,8 +41,14 @@ const initialProducts: ProductWithUI[] = [
     description: "대용량과 고성능을 자랑하는 상품입니다.",
   },
 ];
+interface UseProductsParams {
+  addNotification: (
+    message: string,
+    type: "error" | "success" | "warning"
+  ) => void;
+}
 
-export const useProducts = () => {
+export const useProducts = ({ addNotification }: UseProductsParams) => {
   const [products, setProducts] = useState<ProductWithUI[]>(() => {
     const saved = localStorage.getItem("products");
     if (saved) {
@@ -54,7 +60,6 @@ export const useProducts = () => {
     }
     return initialProducts;
   });
-  const { addNotification } = useNotification();
 
   useEffect(() => {
     localStorage.setItem("products", JSON.stringify(products));
