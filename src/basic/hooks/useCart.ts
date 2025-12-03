@@ -1,11 +1,7 @@
 import { useState, useCallback, useEffect, useMemo } from "react";
 import { CartItem, Product } from "../../types";
 import { getRemainingStock } from "../models/cart";
-
-interface ProductWithUI extends Product {
-  description?: string;
-  isRecommended?: boolean;
-}
+import { ProductWithUI, STORAGE_KEYS, MESSAGES } from "../constants";
 interface UseCartParams {
   products: Product[];
   addNotification: (
@@ -15,7 +11,7 @@ interface UseCartParams {
 }
 export const useCart = ({ products, addNotification }: UseCartParams) => {
   const [cart, setCart] = useState<CartItem[]>(() => {
-    const saved = localStorage.getItem("cart");
+    const saved = localStorage.getItem(STORAGE_KEYS.CART);
     if (saved) {
       try {
         return JSON.parse(saved);
@@ -28,9 +24,9 @@ export const useCart = ({ products, addNotification }: UseCartParams) => {
 
   useEffect(() => {
     if (cart.length > 0) {
-      localStorage.setItem("cart", JSON.stringify(cart));
+      localStorage.setItem(STORAGE_KEYS.CART, JSON.stringify(cart));
     } else {
-      localStorage.removeItem("cart");
+      localStorage.removeItem(STORAGE_KEYS.CART);
     }
   }, [cart]);
 
@@ -42,7 +38,7 @@ export const useCart = ({ products, addNotification }: UseCartParams) => {
     (product: ProductWithUI) => {
       const remainingStock = getRemainingStock(product, cart);
       if (remainingStock <= 0) {
-        addNotification("재고가 부족합니다!", "error");
+        addNotification(MESSAGES.OUT_OF_STOCK, "error");
         return;
       }
 
@@ -56,7 +52,7 @@ export const useCart = ({ products, addNotification }: UseCartParams) => {
 
           if (newQuantity > product.stock) {
             addNotification(
-              `재고는 ${product.stock}개까지만 있습니다.`,
+              MESSAGES.STOCK_LIMIT_EXCEEDED(product.stock),
               "error"
             );
             return prevCart;
@@ -72,9 +68,9 @@ export const useCart = ({ products, addNotification }: UseCartParams) => {
         return [...prevCart, { product, quantity: 1 }];
       });
 
-      addNotification("장바구니에 담았습니다", "success");
+      addNotification(MESSAGES.CART_ITEM_ADDED, "success");
     },
-    [cart, addNotification, getRemainingStock]
+    [cart, addNotification]
   );
 
   const removeFromCart = useCallback((productId: string) => {
@@ -95,7 +91,7 @@ export const useCart = ({ products, addNotification }: UseCartParams) => {
 
       const maxStock = product.stock;
       if (newQuantity > maxStock) {
-        addNotification(`재고는 ${maxStock}개까지만 있습니다.`, "error");
+        addNotification(MESSAGES.STOCK_LIMIT_EXCEEDED(maxStock), "error");
         return;
       }
 
@@ -107,7 +103,7 @@ export const useCart = ({ products, addNotification }: UseCartParams) => {
         )
       );
     },
-    [products, removeFromCart, addNotification, getRemainingStock]
+    [products, removeFromCart, addNotification]
   );
 
   const clearCart = useCallback(() => {

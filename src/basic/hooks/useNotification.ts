@@ -1,4 +1,5 @@
 import { useState, useCallback } from "react";
+import { TIMING } from "../constants";
 
 interface Notification {
   id: string;
@@ -6,7 +7,9 @@ interface Notification {
   type: "error" | "success" | "warning";
 }
 
-export function useNotification(duration = 3000) {
+export function useNotification(
+  duration = TIMING.NOTIFICATION_AUTO_DISMISS_MS
+) {
   const [notifications, setNotifications] = useState<Notification[]>([]);
 
   const addNotification = useCallback(

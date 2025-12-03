@@ -23,11 +23,13 @@ import {
   validateCouponPercentage,
   validateCouponAmount,
 } from "./utils/validators";
-
-interface ProductWithUI extends Product {
-  description?: string;
-  isRecommended?: boolean;
-}
+import {
+  ProductWithUI,
+  EMPTY_PRODUCT_FORM,
+  EMPTY_COUPON_FORM,
+  TIMING,
+  STOCK_THRESHOLDS,
+} from "./constants";
 
 const App = () => {
   const { notifications, addNotification, removeNotification } =
@@ -65,25 +67,13 @@ const App = () => {
 
   // Admin
   const [editingProduct, setEditingProduct] = useState<string | null>(null);
-  const [productForm, setProductForm] = useState({
-    name: "",
-    price: 0,
-    stock: 0,
-    description: "",
-    discounts: [] as Array<{ quantity: number; rate: number }>,
-  });
-
-  const [couponForm, setCouponForm] = useState({
-    name: "",
-    code: "",
-    discountType: "amount" as "amount" | "percentage",
-    discountValue: 0,
-  });
+  const [productForm, setProductForm] = useState(EMPTY_PRODUCT_FORM);
+  const [couponForm, setCouponForm] = useState(EMPTY_COUPON_FORM);
 
   useEffect(() => {
     const timer = setTimeout(() => {
       setDebouncedSearchTerm(searchTerm);
-    }, 500);
+    }, TIMING.SEARCH_DEBOUNCE_MS);
     return () => clearTimeout(timer);
   }, [searchTerm]);
 
@@ -108,13 +98,7 @@ const App = () => {
         discounts: productForm.discounts,
       });
     }
-    setProductForm({
-      name: "",
-      price: 0,
-      stock: 0,
-      description: "",
-      discounts: [],
-    });
+    setProductForm(EMPTY_PRODUCT_FORM);
     setEditingProduct(null);
     setShowProductForm(false);
   };
@@ -122,12 +106,7 @@ const App = () => {
   const handleCouponSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     addCoupon(couponForm);
-    setCouponForm({
-      name: "",
-      code: "",
-      discountType: "amount",
-      discountValue: 0,
-    });
+    setCouponForm(EMPTY_COUPON_FORM);
     setShowCouponForm(false);
   };
 
@@ -296,13 +275,7 @@ const App = () => {
                     <button
                       onClick={() => {
                         setEditingProduct("new");
-                        setProductForm({
-                          name: "",
-                          price: 0,
-                          stock: 0,
-                          description: "",
-                          discounts: [],
-                        });
+                        setProductForm(EMPTY_PRODUCT_FORM);
                         setShowProductForm(true);
                       }}
                       className="px-4 py-2 bg-gray-900 text-white text-sm rounded-md hover:bg-gray-800"
@@ -348,7 +321,7 @@ const App = () => {
                             <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                               <span
                                 className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-                                  product.stock > 10
+                                  product.stock > STOCK_THRESHOLDS.GOOD_STOCK
                                     ? "bg-green-100 text-green-800"
                                     : product.stock > 0
                                     ? "bg-yellow-100 text-yellow-800"
@@ -604,13 +577,7 @@ const App = () => {
                           type="button"
                           onClick={() => {
                             setEditingProduct(null);
-                            setProductForm({
-                              name: "",
-                              price: 0,
-                              stock: 0,
-                              description: "",
-                              discounts: [],
-                            });
+                            setProductForm(EMPTY_PRODUCT_FORM);
                             setShowProductForm(false);
                           }}
                           className="px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-50"
@@ -930,12 +897,13 @@ const App = () => {
 
                             {/* 재고 상태 */}
                             <div className="mb-3">
-                              {remainingStock <= 5 && remainingStock > 0 && (
-                                <p className="text-xs text-red-600 font-medium">
-                                  품절임박! {remainingStock}개 남음
-                                </p>
-                              )}
-                              {remainingStock > 5 && (
+                              {remainingStock <= STOCK_THRESHOLDS.LOW_STOCK &&
+                                remainingStock > 0 && (
+                                  <p className="text-xs text-red-600 font-medium">
+                                    품절임박! {remainingStock}개 남음
+                                  </p>
+                                )}
+                              {remainingStock > STOCK_THRESHOLDS.LOW_STOCK && (
                                 <p className="text-xs text-gray-500">
                                   재고 {remainingStock}개
                                 </p>

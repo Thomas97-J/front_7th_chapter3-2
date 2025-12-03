@@ -1,21 +1,12 @@
 import { useState, useCallback, useEffect } from "react";
 import { CartItem, Coupon } from "../../types";
 import { calculateCartTotal } from "../models/cart";
-
-const initialCoupons: Coupon[] = [
-  {
-    name: "5000원 할인",
-    code: "AMOUNT5000",
-    discountType: "amount",
-    discountValue: 5000,
-  },
-  {
-    name: "10% 할인",
-    code: "PERCENT10",
-    discountType: "percentage",
-    discountValue: 10,
-  },
-];
+import {
+  INITIAL_COUPONS,
+  STORAGE_KEYS,
+  MESSAGES,
+  BUSINESS_RULES,
+} from "../constants";
 
 interface UseCouponsParams {
   cart: CartItem[];
@@ -27,32 +18,32 @@ interface UseCouponsParams {
 
 export const useCoupons = ({ cart, addNotification }: UseCouponsParams) => {
   const [coupons, setCoupons] = useState<Coupon[]>(() => {
-    const saved = localStorage.getItem("coupons");
+    const saved = localStorage.getItem(STORAGE_KEYS.COUPONS);
     if (saved) {
       try {
         return JSON.parse(saved);
       } catch {
-        return initialCoupons;
+        return INITIAL_COUPONS;
       }
     }
-    return initialCoupons;
+    return INITIAL_COUPONS;
   });
 
   const [selectedCoupon, setSelectedCoupon] = useState<Coupon | null>(null);
 
   useEffect(() => {
-    localStorage.setItem("coupons", JSON.stringify(coupons));
+    localStorage.setItem(STORAGE_KEYS.COUPONS, JSON.stringify(coupons));
   }, [coupons]);
 
   const addCoupon = useCallback(
     (newCoupon: Coupon) => {
       const existingCoupon = coupons.find((c) => c.code === newCoupon.code);
       if (existingCoupon) {
-        addNotification("이미 존재하는 쿠폰 코드입니다.", "error");
+        addNotification(MESSAGES.COUPON_CODE_EXISTS, "error");
         return;
       }
       setCoupons((prev) => [...prev, newCoupon]);
-      addNotification("쿠폰이 추가되었습니다.", "success");
+      addNotification(MESSAGES.COUPON_ADDED, "success");
     },
     [coupons, addNotification]
   );
@@ -63,7 +54,7 @@ export const useCoupons = ({ cart, addNotification }: UseCouponsParams) => {
       if (selectedCoupon?.code === couponCode) {
         setSelectedCoupon(null);
       }
-      addNotification("쿠폰이 삭제되었습니다.", "success");
+      addNotification(MESSAGES.COUPON_DELETED, "success");
     },
     [selectedCoupon, addNotification]
   );
@@ -72,18 +63,18 @@ export const useCoupons = ({ cart, addNotification }: UseCouponsParams) => {
     (coupon: Coupon) => {
       const currentTotal = calculateCartTotal(cart, coupon).totalAfterDiscount;
 
-      if (currentTotal < 10000 && coupon.discountType === "percentage") {
-        addNotification(
-          "percentage 쿠폰은 10,000원 이상 구매 시 사용 가능합니다.",
-          "error"
-        );
+      if (
+        currentTotal < BUSINESS_RULES.MIN_PURCHASE_FOR_PERCENTAGE_COUPON &&
+        coupon.discountType === "percentage"
+      ) {
+        addNotification(MESSAGES.PERCENTAGE_COUPON_MIN_PURCHASE, "error");
         return;
       }
 
       setSelectedCoupon(coupon);
-      addNotification("쿠폰이 적용되었습니다.", "success");
+      addNotification(MESSAGES.COUPON_APPLIED, "success");
     },
-    [addNotification, calculateCartTotal]
+    [cart, addNotification]
   );
 
   const clearSelectedCoupon = useCallback(() => {
