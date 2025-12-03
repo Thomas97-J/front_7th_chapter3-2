@@ -16,6 +16,13 @@ import {
   formatPriceKor,
   formatPriceUnit,
 } from "./utils/formatters";
+import {
+  isNumericInput,
+  validateProductPrice,
+  validateProductStock,
+  validateCouponPercentage,
+  validateCouponAmount,
+} from "./utils/validators";
 
 interface ProductWithUI extends Product {
   description?: string;
@@ -427,7 +434,7 @@ const App = () => {
                             }
                             onChange={(e) => {
                               const value = e.target.value;
-                              if (value === "" || /^\d+$/.test(value)) {
+                              if (isNumericInput(value)) {
                                 setProductForm({
                                   ...productForm,
                                   price: value === "" ? 0 : parseInt(value),
@@ -435,15 +442,19 @@ const App = () => {
                               }
                             }}
                             onBlur={(e) => {
-                              const value = e.target.value;
-                              if (value === "") {
-                                setProductForm({ ...productForm, price: 0 });
-                              } else if (parseInt(value) < 0) {
-                                addNotification(
-                                  "가격은 0보다 커야 합니다",
-                                  "error"
-                                );
-                                setProductForm({ ...productForm, price: 0 });
+                              const value = parseInt(e.target.value) || 0;
+                              const result = validateProductPrice(value);
+
+                              if (!result.isValid) {
+                                if (result.error) {
+                                  addNotification(result.error, "error");
+                                }
+                                if (result.correctedValue !== undefined) {
+                                  setProductForm({
+                                    ...productForm,
+                                    price: result.correctedValue
+                                  });
+                                }
                               }
                             }}
                             className="w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 px-3 py-2 border"
@@ -462,7 +473,7 @@ const App = () => {
                             }
                             onChange={(e) => {
                               const value = e.target.value;
-                              if (value === "" || /^\d+$/.test(value)) {
+                              if (isNumericInput(value)) {
                                 setProductForm({
                                   ...productForm,
                                   stock: value === "" ? 0 : parseInt(value),
@@ -470,21 +481,19 @@ const App = () => {
                               }
                             }}
                             onBlur={(e) => {
-                              const value = e.target.value;
-                              if (value === "") {
-                                setProductForm({ ...productForm, stock: 0 });
-                              } else if (parseInt(value) < 0) {
-                                addNotification(
-                                  "재고는 0보다 커야 합니다",
-                                  "error"
-                                );
-                                setProductForm({ ...productForm, stock: 0 });
-                              } else if (parseInt(value) > 9999) {
-                                addNotification(
-                                  "재고는 9999개를 초과할 수 없습니다",
-                                  "error"
-                                );
-                                setProductForm({ ...productForm, stock: 9999 });
+                              const value = parseInt(e.target.value) || 0;
+                              const result = validateProductStock(value);
+
+                              if (!result.isValid) {
+                                if (result.error) {
+                                  addNotification(result.error, "error");
+                                }
+                                if (result.correctedValue !== undefined) {
+                                  setProductForm({
+                                    ...productForm,
+                                    stock: result.correctedValue
+                                  });
+                                }
                               }
                             }}
                             className="w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 px-3 py-2 border"
@@ -771,7 +780,7 @@ const App = () => {
                               }
                               onChange={(e) => {
                                 const value = e.target.value;
-                                if (value === "" || /^\d+$/.test(value)) {
+                                if (isNumericInput(value)) {
                                   setCouponForm({
                                     ...couponForm,
                                     discountValue:
@@ -781,36 +790,19 @@ const App = () => {
                               }}
                               onBlur={(e) => {
                                 const value = parseInt(e.target.value) || 0;
-                                if (couponForm.discountType === "percentage") {
-                                  if (value > 100) {
-                                    addNotification(
-                                      "할인율은 100%를 초과할 수 없습니다",
-                                      "error"
-                                    );
-                                    setCouponForm({
-                                      ...couponForm,
-                                      discountValue: 100,
-                                    });
-                                  } else if (value < 0) {
-                                    setCouponForm({
-                                      ...couponForm,
-                                      discountValue: 0,
-                                    });
+                                const result =
+                                  couponForm.discountType === "percentage"
+                                    ? validateCouponPercentage(value)
+                                    : validateCouponAmount(value);
+
+                                if (!result.isValid) {
+                                  if (result.error) {
+                                    addNotification(result.error, "error");
                                   }
-                                } else {
-                                  if (value > 100000) {
-                                    addNotification(
-                                      "할인 금액은 100,000원을 초과할 수 없습니다",
-                                      "error"
-                                    );
+                                  if (result.correctedValue !== undefined) {
                                     setCouponForm({
                                       ...couponForm,
-                                      discountValue: 100000,
-                                    });
-                                  } else if (value < 0) {
-                                    setCouponForm({
-                                      ...couponForm,
-                                      discountValue: 0,
+                                      discountValue: result.correctedValue,
                                     });
                                   }
                                 }
