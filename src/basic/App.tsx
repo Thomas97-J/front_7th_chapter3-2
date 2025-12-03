@@ -10,7 +10,12 @@ import {
   getRemainingStock,
   isSoldOut,
 } from "./models/cart";
-import { formatPriceKor, formatPriceUnit } from "./utils/formatters";
+import {
+  formatCouponValue,
+  formatDiscount,
+  formatPriceKor,
+  formatPriceUnit,
+} from "./utils/formatters";
 
 interface ProductWithUI extends Product {
   description?: string;
@@ -636,9 +641,10 @@ const App = () => {
                             </p>
                             <div className="mt-2">
                               <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-white text-indigo-700">
-                                {coupon.discountType === "amount"
-                                  ? `${coupon.discountValue.toLocaleString()}원 할인`
-                                  : `${coupon.discountValue}% 할인`}
+                                {formatCouponValue(
+                                  coupon.discountType,
+                                  coupon.discountValue
+                                )}
                               </span>
                             </div>
                           </div>
@@ -895,10 +901,11 @@ const App = () => {
                             {product.discounts.length > 0 && (
                               <span className="absolute top-2 left-2 bg-orange-500 text-white text-xs px-2 py-1 rounded">
                                 ~
-                                {Math.max(
-                                  ...product.discounts.map((d) => d.rate)
-                                ) * 100}
-                                %
+                                {formatDiscount(
+                                  Math.max(
+                                    ...product.discounts.map((d) => d.rate)
+                                  )
+                                )}
                               </span>
                             )}
                           </div>

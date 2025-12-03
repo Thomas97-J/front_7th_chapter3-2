@@ -13,3 +13,17 @@ export const formatPriceKor = (price: number): string => {
 export const formatPriceUnit = (price: number): string => {
   return `₩${price.toLocaleString()}`;
 };
+
+export const formatDiscount = (rate: number): string => {
+  return `${Math.round(rate * 100)}%`;
+};
+
+export const formatCouponValue = (
+  discountType: "amount" | "percentage",
+  discountValue: number
+): string => {
+  if (discountType === "amount") {
+    return `${discountValue.toLocaleString()}원 할인`;
+  }
+  return `${discountValue}% 할인`;
+};
