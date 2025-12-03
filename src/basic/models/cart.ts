@@ -15,7 +15,6 @@
 // - 외부 상태에 의존하지 않음
 // - 모든 필요한 데이터는 파라미터로 전달받음
 
-import { useCallback } from "react";
 import { CartItem, Coupon, Product } from "../../types";
 
 // TODO: 구현

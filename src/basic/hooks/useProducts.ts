@@ -1,5 +1,4 @@
 import { useState, useCallback, useEffect } from "react";
-import { Product } from "../../types";
 import {
   ProductWithUI,
   INITIAL_PRODUCTS,

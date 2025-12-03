@@ -1,4 +1,4 @@
-import { useState, useCallback, useEffect } from "react";
+import { useState, useCallback } from "react";
 import { Product } from "../types";
 import { useProducts } from "./hooks/useProducts";
 import { useCoupons } from "./hooks/useCoupons";
@@ -30,6 +30,7 @@ import {
   TIMING,
   STOCK_THRESHOLDS,
 } from "./constants";
+import { useDebounce } from "./utils/hooks/useDebounce";
 
 const App = () => {
   const { notifications, addNotification, removeNotification } =
@@ -63,19 +64,12 @@ const App = () => {
   );
   const [showProductForm, setShowProductForm] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
-  const [debouncedSearchTerm, setDebouncedSearchTerm] = useState("");
+  const debouncedSearchTerm = useDebounce(searchTerm, TIMING.SEARCH_DEBOUNCE_MS);
 
   // Admin
   const [editingProduct, setEditingProduct] = useState<string | null>(null);
   const [productForm, setProductForm] = useState(EMPTY_PRODUCT_FORM);
   const [couponForm, setCouponForm] = useState(EMPTY_COUPON_FORM);
-
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      setDebouncedSearchTerm(searchTerm);
-    }, TIMING.SEARCH_DEBOUNCE_MS);
-    return () => clearTimeout(timer);
-  }, [searchTerm]);
 
   const completeOrder = useCallback(() => {
     const orderNumber = `ORD-${Date.now()}`;
