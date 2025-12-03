@@ -1,4 +1,4 @@
-import { useState, useCallback, useEffect } from "react";
+import { useCallback } from "react";
 import { CartItem, Coupon } from "../../types";
 import { calculateCartTotal } from "../models/cart";
 import {
@@ -7,6 +7,7 @@ import {
   MESSAGES,
   BUSINESS_RULES,
 } from "../constants";
+import { useLocalStorage } from "../utils/hooks/useLocalStorage";
 
 interface UseCouponsParams {
   cart: CartItem[];
@@ -17,23 +18,15 @@ interface UseCouponsParams {
 }
 
 export const useCoupons = ({ cart, addNotification }: UseCouponsParams) => {
-  const [coupons, setCoupons] = useState<Coupon[]>(() => {
-    const saved = localStorage.getItem(STORAGE_KEYS.COUPONS);
-    if (saved) {
-      try {
-        return JSON.parse(saved);
-      } catch {
-        return INITIAL_COUPONS;
-      }
-    }
-    return INITIAL_COUPONS;
-  });
+  const [coupons, setCoupons] = useLocalStorage<Coupon[]>(
+    STORAGE_KEYS.COUPONS,
+    INITIAL_COUPONS
+  );
 
-  const [selectedCoupon, setSelectedCoupon] = useState<Coupon | null>(null);
-
-  useEffect(() => {
-    localStorage.setItem(STORAGE_KEYS.COUPONS, JSON.stringify(coupons));
-  }, [coupons]);
+  const [selectedCoupon, setSelectedCoupon] = useLocalStorage<Coupon | null>(
+    STORAGE_KEYS.SELECTED_COUPON,
+    null
+  );
 
   const addCoupon = useCallback(
     (newCoupon: Coupon) => {
@@ -45,7 +38,7 @@ export const useCoupons = ({ cart, addNotification }: UseCouponsParams) => {
       setCoupons((prev) => [...prev, newCoupon]);
       addNotification(MESSAGES.COUPON_ADDED, "success");
     },
-    [coupons, addNotification]
+    [coupons, addNotification, setCoupons]
   );
 
   const deleteCoupon = useCallback(
@@ -56,7 +49,7 @@ export const useCoupons = ({ cart, addNotification }: UseCouponsParams) => {
       }
       addNotification(MESSAGES.COUPON_DELETED, "success");
     },
-    [selectedCoupon, addNotification]
+    [selectedCoupon, addNotification, setCoupons, setSelectedCoupon]
   );
 
   const applyCoupon = useCallback(
@@ -74,12 +67,12 @@ export const useCoupons = ({ cart, addNotification }: UseCouponsParams) => {
       setSelectedCoupon(coupon);
       addNotification(MESSAGES.COUPON_APPLIED, "success");
     },
-    [cart, addNotification]
+    [cart, addNotification, setSelectedCoupon]
   );
 
   const clearSelectedCoupon = useCallback(() => {
     setSelectedCoupon(null);
-  }, []);
+  }, [setSelectedCoupon]);
 
   return {
     coupons,

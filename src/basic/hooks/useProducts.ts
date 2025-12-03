@@ -1,10 +1,12 @@
-import { useState, useCallback, useEffect } from "react";
+import { useCallback } from "react";
 import {
   ProductWithUI,
   INITIAL_PRODUCTS,
   STORAGE_KEYS,
   MESSAGES,
 } from "../constants";
+import { useLocalStorage } from "../utils/hooks/useLocalStorage";
+
 interface UseProductsParams {
   addNotification: (
     message: string,
@@ -13,21 +15,10 @@ interface UseProductsParams {
 }
 
 export const useProducts = ({ addNotification }: UseProductsParams) => {
-  const [products, setProducts] = useState<ProductWithUI[]>(() => {
-    const saved = localStorage.getItem(STORAGE_KEYS.PRODUCTS);
-    if (saved) {
-      try {
-        return JSON.parse(saved);
-      } catch {
-        return INITIAL_PRODUCTS;
-      }
-    }
-    return INITIAL_PRODUCTS;
-  });
-
-  useEffect(() => {
-    localStorage.setItem(STORAGE_KEYS.PRODUCTS, JSON.stringify(products));
-  }, [products]);
+  const [products, setProducts] = useLocalStorage<ProductWithUI[]>(
+    STORAGE_KEYS.PRODUCTS,
+    INITIAL_PRODUCTS
+  );
 
   const addProduct = useCallback(
     (newProduct: Omit<ProductWithUI, "id">) => {
@@ -40,7 +31,7 @@ export const useProducts = ({ addNotification }: UseProductsParams) => {
 
       return product;
     },
-    [addNotification]
+    [addNotification, setProducts]
   );
 
   const updateProduct = useCallback(
@@ -52,7 +43,7 @@ export const useProducts = ({ addNotification }: UseProductsParams) => {
       );
       addNotification(MESSAGES.PRODUCT_UPDATED, "success");
     },
-    [addNotification]
+    [addNotification, setProducts]
   );
 
   const deleteProduct = useCallback(
@@ -60,7 +51,7 @@ export const useProducts = ({ addNotification }: UseProductsParams) => {
       setProducts((prev) => prev.filter((p) => p.id !== productId));
       addNotification(MESSAGES.PRODUCT_DELETED, "success");
     },
-    [addNotification]
+    [addNotification, setProducts]
   );
 
   return {

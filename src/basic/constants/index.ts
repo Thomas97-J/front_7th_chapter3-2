@@ -127,7 +127,8 @@ export const MESSAGES = {
   OUT_OF_STOCK: "재고가 부족합니다!",
   STOCK_LIMIT_EXCEEDED: (max: number) => `재고는 ${max}개까지만 있습니다.`,
   COUPON_CODE_EXISTS: "이미 존재하는 쿠폰 코드입니다.",
-  PERCENTAGE_COUPON_MIN_PURCHASE: "percentage 쿠폰은 10,000원 이상 구매 시 사용 가능합니다.",
+  PERCENTAGE_COUPON_MIN_PURCHASE:
+    "percentage 쿠폰은 10,000원 이상 구매 시 사용 가능합니다.",
 };
 
 // ============= LocalStorage 키 =============
@@ -135,4 +136,5 @@ export const STORAGE_KEYS = {
   PRODUCTS: "products",
   CART: "cart",
   COUPONS: "coupons",
+  SELECTED_COUPON: "selectedCoupon",
 };

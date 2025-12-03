@@ -1,7 +1,9 @@
-import { useState, useCallback, useEffect, useMemo } from "react";
+import { useCallback, useMemo } from "react";
 import { CartItem, Product } from "../../types";
 import { getRemainingStock } from "../models/cart";
 import { ProductWithUI, STORAGE_KEYS, MESSAGES } from "../constants";
+import { useLocalStorage } from "../utils/hooks/useLocalStorage";
+
 interface UseCartParams {
   products: Product[];
   addNotification: (
@@ -9,26 +11,9 @@ interface UseCartParams {
     type: "error" | "success" | "warning"
   ) => void;
 }
-export const useCart = ({ products, addNotification }: UseCartParams) => {
-  const [cart, setCart] = useState<CartItem[]>(() => {
-    const saved = localStorage.getItem(STORAGE_KEYS.CART);
-    if (saved) {
-      try {
-        return JSON.parse(saved);
-      } catch {
-        return [];
-      }
-    }
-    return [];
-  });
 
-  useEffect(() => {
-    if (cart.length > 0) {
-      localStorage.setItem(STORAGE_KEYS.CART, JSON.stringify(cart));
-    } else {
-      localStorage.removeItem(STORAGE_KEYS.CART);
-    }
-  }, [cart]);
+export const useCart = ({ products, addNotification }: UseCartParams) => {
+  const [cart, setCart] = useLocalStorage<CartItem[]>(STORAGE_KEYS.CART, []);
 
   const totalItemCount = useMemo(() => {
     return cart.reduce((sum, item) => sum + item.quantity, 0);
@@ -70,14 +55,17 @@ export const useCart = ({ products, addNotification }: UseCartParams) => {
 
       addNotification(MESSAGES.CART_ITEM_ADDED, "success");
     },
-    [cart, addNotification]
+    [cart, addNotification, setCart]
   );
 
-  const removeFromCart = useCallback((productId: string) => {
-    setCart((prevCart) =>
-      prevCart.filter((item) => item.product.id !== productId)
-    );
-  }, []);
+  const removeFromCart = useCallback(
+    (productId: string) => {
+      setCart((prevCart) =>
+        prevCart.filter((item) => item.product.id !== productId)
+      );
+    },
+    [setCart]
+  );
 
   const updateQuantity = useCallback(
     (productId: string, newQuantity: number) => {
@@ -103,12 +91,12 @@ export const useCart = ({ products, addNotification }: UseCartParams) => {
         )
       );
     },
-    [products, removeFromCart, addNotification]
+    [products, removeFromCart, addNotification, setCart]
   );
 
   const clearCart = useCallback(() => {
     setCart([]);
-  }, []);
+  }, [setCart]);
 
   return {
     cart,
