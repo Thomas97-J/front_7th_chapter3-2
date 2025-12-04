@@ -5,6 +5,7 @@ import {
 } from "../../models/coupon";
 import { isNumericInput } from "../../utils/validators";
 import { Button, FormInput, FormSelect } from "../ui";
+import { useNotification } from "../../hooks/useNotification";
 
 interface CouponFormData {
   name: string;
@@ -18,10 +19,6 @@ interface CouponFormProps {
   setCouponForm: React.Dispatch<React.SetStateAction<CouponFormData>>;
   setShowCouponForm: React.Dispatch<React.SetStateAction<boolean>>;
   onSubmit: (e: React.FormEvent) => void;
-  addNotification: (
-    message: string,
-    type: "error" | "success" | "warning"
-  ) => void;
 }
 
 export const CouponForm = ({
@@ -29,8 +26,8 @@ export const CouponForm = ({
   setCouponForm,
   setShowCouponForm,
   onSubmit,
-  addNotification,
 }: CouponFormProps) => {
+  const { addNotification } = useNotification();
   const handleNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setCouponForm({ ...couponForm, name: e.target.value });
   };

@@ -1,24 +1,20 @@
-import { Product, CartItem } from "../../../../types";
+import { Product } from "../../../../types";
 import { ProductWithUI } from "../../../constants";
 import { isSoldOut } from "../../../models/cart";
 import { getStockBadgeClass } from "../../../models/product";
 import { formatPriceKor } from "../../../utils/formatters";
+import { useProducts } from "../../../hooks/useProducts";
+import { useCart } from "../../../hooks/useCart";
 
 interface ProductRowProps {
   product: Product;
-  products: Product[];
-  cart: CartItem[];
   onEdit: (product: ProductWithUI) => void;
-  onDelete: (id: string) => void;
 }
 
-export const ProductRow = ({
-  product,
-  products,
-  cart,
-  onEdit,
-  onDelete,
-}: ProductRowProps) => {
+export const ProductRow = ({ product, onEdit }: ProductRowProps) => {
+  const { products, deleteProduct } = useProducts();
+  const { cart } = useCart();
+
   return (
     <tr className="hover:bg-gray-50">
       <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
@@ -49,7 +45,7 @@ export const ProductRow = ({
           수정
         </button>
         <button
-          onClick={() => onDelete(product.id)}
+          onClick={() => deleteProduct(product.id)}
           className="text-red-600 hover:text-red-900"
         >
           삭제

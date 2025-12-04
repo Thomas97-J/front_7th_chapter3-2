@@ -1,8 +1,8 @@
 import React from "react";
-import { Product, CartItem } from "../../../../types";
 import { ProductWithUI, EMPTY_PRODUCT_FORM } from "../../../constants";
 import { Button, Card } from "../../ui";
 import { ProductRow } from "./ProductRow";
+import { useProducts } from "../../../hooks/useProducts";
 
 interface ProductFormData {
   name: string;
@@ -13,22 +13,17 @@ interface ProductFormData {
 }
 
 interface ProductAccordionProps {
-  products: Product[];
-  cart: CartItem[];
   setEditingProduct: React.Dispatch<React.SetStateAction<string | null>>;
   setProductForm: React.Dispatch<React.SetStateAction<ProductFormData>>;
   setShowProductForm: React.Dispatch<React.SetStateAction<boolean>>;
-  deleteProduct: (id: string) => void;
 }
 
 export const ProductAccordion = ({
-  products,
-  cart,
   setEditingProduct,
   setProductForm,
   setShowProductForm,
-  deleteProduct,
 }: ProductAccordionProps) => {
+  const { products } = useProducts();
   const handleEditProduct = (product: ProductWithUI) => {
     setEditingProduct(product.id);
     setProductForm({
@@ -88,10 +83,7 @@ export const ProductAccordion = ({
               <ProductRow
                 key={product.id}
                 product={product}
-                products={products}
-                cart={cart}
                 onEdit={handleEditProduct}
-                onDelete={deleteProduct}
               />
             ))}
           </tbody>

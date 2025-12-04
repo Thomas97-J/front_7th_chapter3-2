@@ -1,11 +1,12 @@
 import { useState } from "react";
-import { Product, CartItem, Coupon } from "../../../types";
 import { EMPTY_PRODUCT_FORM, EMPTY_COUPON_FORM } from "../../constants";
 import { Tabs } from "../ui";
 import { ProductForm } from "./ProductForm";
 import { CouponForm } from "./CouponForm";
 import { CouponList } from "./CouponList";
 import ProductAccordion from "./ProductAccordion";
+import { useProducts } from "../../hooks/useProducts";
+import { useCoupons } from "../../hooks/useCoupons";
 
 interface ProductFormData {
   name: string;
@@ -22,32 +23,9 @@ interface CouponFormData {
   discountValue: number;
 }
 
-interface AdminPageProps {
-  products: Product[];
-  coupons: Coupon[];
-  addProduct: (product: ProductFormData) => void;
-  updateProduct: (id: string, product: ProductFormData) => void;
-  deleteProduct: (id: string) => void;
-  addCoupon: (coupon: CouponFormData) => void;
-  deleteCoupon: (code: string) => void;
-  addNotification: (
-    message: string,
-    type: "error" | "success" | "warning"
-  ) => void;
-  cart: CartItem[];
-}
-
-export const AdminPage = ({
-  products,
-  coupons,
-  addProduct,
-  updateProduct,
-  deleteProduct,
-  addCoupon,
-  deleteCoupon,
-  addNotification,
-  cart,
-}: AdminPageProps) => {
+export const AdminPage = () => {
+  const { addProduct, updateProduct } = useProducts();
+  const { addCoupon } = useCoupons();
   const [activeTab, setActiveTab] = useState<"products" | "coupons">(
     "products"
   );
@@ -103,12 +81,9 @@ export const AdminPage = ({
       {activeTab === "products" ? (
         <>
           <ProductAccordion
-            products={products}
-            cart={cart}
             setEditingProduct={setEditingProduct}
             setProductForm={setProductForm}
             setShowProductForm={setShowProductForm}
-            deleteProduct={deleteProduct}
           />
           {showProductForm && (
             <ProductForm
@@ -118,15 +93,12 @@ export const AdminPage = ({
               setEditingProduct={setEditingProduct}
               setShowProductForm={setShowProductForm}
               onSubmit={handleProductSubmit}
-              addNotification={addNotification}
             />
           )}
         </>
       ) : (
         <>
           <CouponList
-            coupons={coupons}
-            deleteCoupon={deleteCoupon}
             showCouponForm={showCouponForm}
             setShowCouponForm={setShowCouponForm}
           />
@@ -136,7 +108,6 @@ export const AdminPage = ({
               setCouponForm={setCouponForm}
               setShowCouponForm={setShowCouponForm}
               onSubmit={handleCouponSubmit}
-              addNotification={addNotification}
             />
           )}
         </>

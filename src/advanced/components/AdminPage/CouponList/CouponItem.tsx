@@ -1,13 +1,15 @@
 import { Coupon } from "../../../../types";
 import { formatCouponValue } from "../../../models/coupon";
 import { TrashIcon } from "../../icons";
+import { useCoupons } from "../../../hooks/useCoupons";
 
 interface CouponItemProps {
   coupon: Coupon;
-  deleteCoupon: (code: string) => void;
 }
 
-export const CouponItem = ({ coupon, deleteCoupon }: CouponItemProps) => {
+export const CouponItem = ({ coupon }: CouponItemProps) => {
+  const { deleteCoupon } = useCoupons();
+
   return (
     <div className="relative bg-gradient-to-r from-indigo-50 to-purple-50 rounded-lg p-4 border border-indigo-200">
       <div className="flex justify-between items-start">
