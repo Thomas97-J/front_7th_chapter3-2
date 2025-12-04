@@ -5,7 +5,7 @@ import { filterProductsBySearch } from "../../models/product";
 import { useDebounce } from "../../utils/hooks/useDebounce";
 import { SearchBar } from "./SearchBar";
 import { ProductList } from "./ProductList";
-import { Cart } from "./Cart/Cart";
+import Cart from "./Cart";
 
 interface CartPageProps {
   products: Product[];

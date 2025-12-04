@@ -2,15 +2,15 @@ import { useCallback } from "react";
 import { useAtom, useAtomValue } from "jotai";
 import { cartAtom, totalItemCountAtom } from "../atoms/cartAtom";
 import { productsAtom } from "../atoms/productsAtom";
-import { useNotificationActions } from "./notificationActions";
 import { getRemainingStock } from "../../models/cart";
 import { ProductWithUI, MESSAGES } from "../../constants";
+import { useNotification } from "../../hooks/useNotification";
 
 export const useCartActions = () => {
   const [cart, setCart] = useAtom(cartAtom);
   const products = useAtomValue(productsAtom);
   const totalItemCount = useAtomValue(totalItemCountAtom);
-  const { addNotification } = useNotificationActions();
+  const { addNotification } = useNotification();
 
   const addToCart = useCallback(
     (product: ProductWithUI) => {
@@ -28,7 +28,10 @@ export const useCartActions = () => {
         if (existingItem) {
           const newQuantity = existingItem.quantity + 1;
           if (newQuantity > product.stock) {
-            addNotification(MESSAGES.STOCK_LIMIT_EXCEEDED(product.stock), "error");
+            addNotification(
+              MESSAGES.STOCK_LIMIT_EXCEEDED(product.stock),
+              "error"
+            );
             return prevCart;
           }
           return prevCart.map((item) =>

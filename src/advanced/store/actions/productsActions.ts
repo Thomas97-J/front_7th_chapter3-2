@@ -1,12 +1,12 @@
 import { useCallback } from "react";
 import { useAtom } from "jotai";
 import { productsAtom } from "../atoms/productsAtom";
-import { useNotificationActions } from "./notificationActions";
 import { ProductWithUI, MESSAGES } from "../../constants";
+import { useNotification } from "../../hooks/useNotification";
 
 export const useProductsActions = () => {
   const [products, setProducts] = useAtom(productsAtom);
-  const { addNotification } = useNotificationActions();
+  const { addNotification } = useNotification();
 
   const addProduct = useCallback(
     (newProduct: Omit<ProductWithUI, "id">) => {

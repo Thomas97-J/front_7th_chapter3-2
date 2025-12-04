@@ -2,16 +2,16 @@ import { useCallback } from "react";
 import { useAtom, useAtomValue } from "jotai";
 import { couponsAtom, selectedCouponAtom } from "../atoms/couponsAtom";
 import { cartAtom } from "../atoms/cartAtom";
-import { useNotificationActions } from "./notificationActions";
 import { calculateCartTotal } from "../../models/cart";
 import { Coupon } from "../../../types";
 import { MESSAGES, BUSINESS_RULES } from "../../constants";
+import { useNotification } from "../../hooks/useNotification";
 
 export const useCouponsActions = () => {
   const [coupons, setCoupons] = useAtom(couponsAtom);
   const [selectedCoupon, setSelectedCoupon] = useAtom(selectedCouponAtom);
   const cart = useAtomValue(cartAtom);
-  const { addNotification } = useNotificationActions();
+  const { addNotification } = useNotification();
 
   const addCoupon = useCallback(
     (newCoupon: Coupon) => {
