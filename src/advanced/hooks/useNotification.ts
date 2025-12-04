@@ -1,36 +1,32 @@
-import { useState, useCallback } from "react";
+import { useCallback } from "react";
+import { useAtom } from "jotai";
+import { notificationsAtom } from "../store/atoms/notificationAtom";
 import { TIMING } from "../constants";
-
-interface Notification {
-  id: string;
-  message: string;
-  type: "error" | "success" | "warning";
-}
 
 export function useNotification(
   duration = TIMING.NOTIFICATION_AUTO_DISMISS_MS
 ) {
-  const [notifications, setNotifications] = useState<Notification[]>([]);
+  const [notifications, setNotifications] = useAtom(notificationsAtom);
 
   const addNotification = useCallback(
     (message: string, type: "error" | "success" | "warning" = "success") => {
-      const id = Date.now().toString();
+      const id = `${Date.now()}-${Math.random()}`;
       setNotifications((prev) => [...prev, { id, message, type }]);
 
       setTimeout(() => {
         setNotifications((prev) => prev.filter((n) => n.id !== id));
       }, duration);
     },
-    [duration]
+    [duration, setNotifications]
   );
 
   const removeNotification = useCallback((id: string) => {
     setNotifications((prev) => prev.filter((n) => n.id !== id));
-  }, []);
+  }, [setNotifications]);
 
   const clearNotifications = useCallback(() => {
     setNotifications([]);
-  }, []);
+  }, [setNotifications]);
 
   return {
     notifications,

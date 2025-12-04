@@ -15,7 +15,8 @@ export {
   couponCountAtom,
 } from "./atoms/couponsAtom";
 
-// Actions
-export { useProductsActions } from "./actions/productsActions";
-export { useCartActions } from "./actions/cartActions";
-export { useCouponsActions } from "./actions/couponsActions";
+// Notifications
+export {
+  notificationsAtom,
+  hasNotificationsAtom,
+} from "./atoms/notificationAtom";

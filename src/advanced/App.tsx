@@ -1,21 +1,20 @@
 import { useState, useCallback } from "react";
-import { useProducts } from "./hooks/useProducts";
-import { useCoupons } from "./hooks/useCoupons";
-import { useCart } from "./hooks/useCart";
+
 import { useNotification } from "./hooks/useNotification";
 import { UIToast } from "./components/ui/UIToast";
 
 import Header from "./components/Header";
 import { AdminPage } from "./components/AdminPage";
 import { CartPage } from "./components/CartPage";
+import { useCart } from "./hooks/useCart";
+import { useCoupons } from "./hooks/useCoupons";
+import { useProducts } from "./hooks/useProducts";
 
 const App = () => {
   const { notifications, addNotification, removeNotification } =
     useNotification();
 
-  const { products, addProduct, updateProduct, deleteProduct } = useProducts({
-    addNotification,
-  });
+  const { products, addProduct, updateProduct, deleteProduct } = useProducts();
   const {
     cart,
     totalItemCount,
@@ -23,7 +22,7 @@ const App = () => {
     removeFromCart,
     updateQuantity,
     clearCart,
-  } = useCart({ products, addNotification });
+  } = useCart();
 
   const {
     coupons,
@@ -32,7 +31,7 @@ const App = () => {
     deleteCoupon,
     applyCoupon,
     clearSelectedCoupon,
-  } = useCoupons({ cart, addNotification });
+  } = useCoupons();
 
   const [isAdmin, setIsAdmin] = useState(false);
 
