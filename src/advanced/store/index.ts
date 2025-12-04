@@ -1,9 +1,5 @@
 // Cart
-export {
-  cartAtom,
-  totalItemCountAtom,
-  isCartEmptyAtom,
-} from "./atoms/cartAtom";
+export { cartAtom, totalItemCountAtom, isCartEmptyAtom } from "./atoms/cartAtom";
 
 // Products
 export { productsAtom } from "./atoms/productsAtom";
@@ -21,3 +17,9 @@ export {
   hasNotificationsAtom,
   type Notification,
 } from "./atoms/notificationAtom";
+
+// Actions
+export { useNotificationActions } from "./actions/notificationActions";
+export { useProductsActions } from "./actions/productsActions";
+export { useCartActions } from "./actions/cartActions";
+export { useCouponsActions } from "./actions/couponsActions";
